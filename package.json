@@ -1,0 +1,49 @@
+{
+  "name": "leaflet_d3_point_map",
+  "version": "0.1.0",
+  "description": "Leaflet and D3 powered map of points",
+  "main": "lib/leaflet-d3-point-map.js",
+  "scripts": {
+    "build": "webpack --env dev && webpack --env build",
+    "dev": "webpack --progress --colors --watch --env dev",
+    "test": "mocha --require babel-register --colors ./test/*.spec.js",
+    "test:watch": "mocha --require babel-register --colors -w ./test/*.spec.js",
+    "test:cover": "cross-env NODE_ENV=test nyc mocha --require babel-register --colors test/*.js",
+    "repl": "node -i -e \"$(< ./lib/webpack-library-starter.js)\""
+  },
+  "author": "Jason Portenoy",
+  "license": "MIT",
+  "devDependencies": {
+    "@babel/cli": "^7.0.0-beta.51",
+    "@babel/core": "^7.0.0-beta.51",
+    "@babel/preset-env": "^7.0.0-beta.51",
+    "babel-eslint": "^10.0.2",
+    "babel-loader": "^8.0.0-beta.4",
+    "babel-plugin-add-module-exports": "^1.0.2",
+    "babel-plugin-istanbul": "^5.1.0",
+    "babel-preset-env": "^1.7.0",
+    "babel-register": "^6.26.0",
+    "chai": "^4.1.2",
+    "cross-env": "^5.2.0",
+    "d3": "^5.9.1",
+    "eslint": "^6.1.0",
+    "eslint-loader": "^2.0.0",
+    "ignore-loader": "^0.1.2",
+    "jquery": "^3.3.1",
+    "jsdom": "^15.1.1",
+    "jsdom-global": "3.0.2",
+    "leaflet": "^1.5.1",
+    "mocha": "^6.2.0",
+    "nyc": "^14.1.1",
+    "tippy.js": "^4.0.4",
+    "uglifyjs-webpack-plugin": "^2.2.0",
+    "webpack": "^4.12.2",
+    "webpack-cli": "^3.0.8",
+    "webpack-node-externals": "^1.7.2",
+    "yargs": "^13.3.0"
+  },
+  "nyc": {
+    "sourceMap": false,
+    "instrument": false
+  }
+}
