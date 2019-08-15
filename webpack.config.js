@@ -68,7 +68,14 @@ const config = {
 	  'd3',
 	  {jquery: 'jQuery'},
 	  {popper: 'popper.js'},
-	  'leaflet'
+	  {
+		  'leaflet': {
+			  commonjs: 'leaflet',
+			  commonjs2: 'leaflet',
+			  amd: 'leaflet',
+			  root: 'L'
+		  }
+	  },
   ]
 };
 

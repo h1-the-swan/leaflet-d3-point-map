@@ -31,8 +31,14 @@
 
 <script type="text/javascript" charset="utf-8">
 	var LeafletD3PointMap = leaflet_d3_point_map.LeafletD3PointMap;
-var x = new LeafletD3PointMap();
-console.log(x);
+
+d3.json('data/feed0.json').then(function(data) {
+	var institutions = data.graph.institutions;
+	console.log(institutions);
+	var sel = d3.select('#mapid');
+	console.log(sel);
+	var vis = new LeafletD3PointMap({data: institutions, el: sel});
+});
 </script>
 </body>
 </html>

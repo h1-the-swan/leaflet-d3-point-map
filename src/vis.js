@@ -26,8 +26,8 @@ class LeafletD3PointMap {
 		if (typeof this.height === 'undefined') {
 			this.height = .625 * this.width;
 		}
-		this.manyBody = d3.forceManyBody()
-							.strength(this.forceStrength);
+		// this.manyBody = d3.forceManyBody()
+		// 					.strength(this.forceStrength);
 		this.init = false;
 		console.log(this._data);
 		if (this.el !== null && this._data !== null) {
@@ -56,13 +56,77 @@ class LeafletD3PointMap {
 		var obj = this;
 		var width = this.width;
 		var height = this.height;
+		var data = this._data;
 		// var graph = this._data;
 		// var color = this.color;
 		selection.each(function() {
 			var selItem = this;
+			var map = new L.Map(selItem, {center: [37.8, -26.9], zoom: 1.5})
+				.addLayer(new L.TileLayer("http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+					attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+				}));
+			var markers = new L.FeatureGroup();
+
 
 			// var svg = d3.select(selItem).append("svg").attr("width", width).attr("height", height);
 			// console.log(graph);
+
+			function addMarker(lat, lng, data) {
+				
+				var opt = {};
+				if (data['count_inst']>1) {
+					opt['zIndexOffset'] = 1000;
+				}
+				opt['opacity'] = (data['COUNT_AUTHOR'] == 1) ? .5 : 1.0;
+				var m = new L.circleMarker([lat, lng], opt);
+
+				var count = 1;
+				m.on("click", function () {
+					if (count == 1) {
+						var $div = $('<div style="width: 200px; height: 200px; pointer-events: none;"></div>');
+						$div.addClass('mapPopUp')
+						var div = $div[0];
+						m.bindPopup(div);
+						m.openPopup();
+
+						var $title = $('<h3></h3>').text(data.NAME);
+						$div.prepend($title);
+						$div.append($('<p></p>').text("Count: " + data['COUNT_AUTHOR']));
+
+						count ++
+					}
+				});
+			   
+				markers.addLayer(m);
+
+			}
+
+			function incrementLatLng() {
+				lat = lat + .01;
+				lng = lng + .01;
+			}
+
+			var latlngs = [];
+			for (var i = 0; i < data.length; i++) {
+
+				if (data[i].lat !== "" && data[i].lat !== "NONE") {
+					var lat = +data[i].lat;
+					var lng = +data[i].lng;
+					var latlngStr = lat + "," + lng;
+					while (latlngs.includes(latlngStr) === true) {
+						console.log(lat,lng);
+						incrementLatLng();
+						console.log(lat,lng);
+						var latlngStr = lat + "," + lng;
+						
+					}
+					addMarker(lat, lng, data[i]);
+					latlngs.push(latlngStr);
+
+				}
+			map.addLayer(markers);
+			}
+
 
 		});
 	return this;
