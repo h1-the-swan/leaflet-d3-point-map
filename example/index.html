@@ -28,18 +28,8 @@
    integrity="sha512-GffPMF3RvMeYyc1LWMHtK8EbPv0iNZ8/oTtHPx9/cc2ILxQ+u905qIwdpULaqDkyBKgOaB57QTMg7ztg8Jm2Og=="
    crossorigin=""></script>
 <script src="../lib/leaflet_d3_point_map.js"></script>
+<script src="./main.js"></script>
 
-<script type="text/javascript" charset="utf-8">
-	var LeafletD3PointMap = leaflet_d3_point_map.LeafletD3PointMap;
-
-d3.json('data/feed0.json').then(function(data) {
-	var institutions = data.graph.institutions;
-	console.log(institutions);
-	var sel = d3.select('#mapid');
-	console.log(sel);
-	var vis = new LeafletD3PointMap({data: institutions, el: sel});
-});
-</script>
 </body>
 </html>
 

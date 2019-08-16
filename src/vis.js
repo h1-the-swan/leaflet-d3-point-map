@@ -17,24 +17,52 @@ class LeafletD3PointMap {
 			el: null,
 			data: null,
 			width: 960,
+			sizeField: "COUNT_AUTHOR",
+			initMapCenter: [37.8, -26.9],
+			initMapZoom: 1.5,
 			// color: d3.scaleOrdinal(d3.schemeCategory10),
 			// forceStrength: -2,
 		};
 		Object.assign(this, defaults, opts);  // opts will overwrite defaults
-		this._data = this.data;
+		this.el = this.initEl(this.el);
+		this._data = this.initData(this.data);
 		this.data = this.updateData;
 		if (typeof this.height === 'undefined') {
 			this.height = .625 * this.width;
 		}
-		// this.manyBody = d3.forceManyBody()
-		// 					.strength(this.forceStrength);
+		this.el.style("width", this.width + "px")
+				.style("height", this.height + "px");
 		this.init = false;
 		console.log(this._data);
 		if (this.el !== null && this._data !== null) {
 			this.draw(this.el);
 			this.init = true;
 		}
-	}
+	};
+
+	initEl(el) {
+		if (el instanceof d3.selection) {
+			// if it's already a d3 selection
+			return el
+		} else if (el instanceof $) {
+			// if it's a jquery object
+			return d3.select(el[0]);
+		} else {
+			// this should cover if it's the actual element or a CSS style selection string
+			return d3.select(el);
+		}
+	};
+
+	initData(data) {
+		// filter out data elements with no geolocation info
+		var _data = [];
+		for (var i = 0; i < data.length ; i++) {
+			if (data[i].lat !== "" && data[i].lat !== "NONE") {
+				_data.push(data[i])
+			}
+		}
+		return _data;
+	};
 
 	updateData(value) {
 		if (!arguments.length) return this._data;
@@ -57,15 +85,52 @@ class LeafletD3PointMap {
 		var width = this.width;
 		var height = this.height;
 		var data = this._data;
+		var sizeField = this.sizeField;
+		var initMapCenter = this.initMapCenter;
+		var initMapZoom = this.initMapZoom;
 		// var graph = this._data;
 		// var color = this.color;
 		selection.each(function() {
 			var selItem = this;
-			var map = new L.Map(selItem, {center: [37.8, -26.9], zoom: 1.5})
+			var map = new L.Map(selItem, {center: initMapCenter, zoom: initMapZoom})
 				.addLayer(new L.TileLayer("http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
 					attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
 				}));
 			var markers = new L.FeatureGroup();
+
+			var svgLayer = L.svg();
+			svgLayer.addTo(map);
+			var svg = d3.select(this).select("svg");
+			var g = svg.select("g");
+
+			for (var i = 0; i < data.length ; i++) {
+				data[i].LatLng = new L.LatLng(data[i].lat, data[i].lng)
+			}
+			var sizeScale = d3.scaleLinear().range([5,20])
+								.domain(d3.extent(data, function(d) { return d[sizeField]; }));
+
+			var feature = g.selectAll("circle")
+			.data(data)
+			.enter().append("circle")
+			.style("stroke", "black")
+			.style("opacity", .6)
+			.style("fill", "red")
+			// .attr("r", 20);
+			.attr("r", function(d) { return sizeScale(d[sizeField]); });
+
+		map.on("viewreset, zoom", update);
+		update();
+
+		function update() {
+			console.log('update');
+			feature.attr("transform",
+			function(d) {
+				return "translate("+
+					map.latLngToLayerPoint(d.LatLng).x +","+
+					map.latLngToLayerPoint(d.LatLng).y +")";
+				}
+			)
+		}
 
 
 			// var svg = d3.select(selItem).append("svg").attr("width", width).attr("height", height);
@@ -106,26 +171,24 @@ class LeafletD3PointMap {
 				lng = lng + .01;
 			}
 
-			var latlngs = [];
-			for (var i = 0; i < data.length; i++) {
-
-				if (data[i].lat !== "" && data[i].lat !== "NONE") {
-					var lat = +data[i].lat;
-					var lng = +data[i].lng;
-					var latlngStr = lat + "," + lng;
-					while (latlngs.includes(latlngStr) === true) {
-						console.log(lat,lng);
-						incrementLatLng();
-						console.log(lat,lng);
-						var latlngStr = lat + "," + lng;
-						
-					}
-					addMarker(lat, lng, data[i]);
-					latlngs.push(latlngStr);
-
-				}
-			map.addLayer(markers);
-			}
+			// var latlngs = [];
+			// for (var i = 0; i < data.length; i++) {
+            //
+			// 	if (data[i].lat !== "" && data[i].lat !== "NONE") {
+			// 		var lat = +data[i].lat;
+			// 		var lng = +data[i].lng;
+			// 		var latlngStr = lat + "," + lng;
+			// 		while (latlngs.includes(latlngStr) === true) {
+			// 			incrementLatLng();
+			// 			var latlngStr = lat + "," + lng;
+			// 			
+			// 		}
+			// 		addMarker(lat, lng, data[i]);
+			// 		latlngs.push(latlngStr);
+            //
+			// 	}
+			// map.addLayer(markers);
+			// }
 
 
 		});
