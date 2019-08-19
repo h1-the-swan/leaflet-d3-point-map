@@ -96,7 +96,7 @@ class LeafletD3PointMap {
 				.addLayer(new L.TileLayer("http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
 					attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
 				}));
-			var markers = new L.FeatureGroup();
+			// var markers = new L.FeatureGroup();
 
 			var svgLayer = L.svg();
 			svgLayer.addTo(map);
@@ -116,7 +116,8 @@ class LeafletD3PointMap {
 			.style("opacity", .6)
 			.style("fill", "red")
 			// .attr("r", 20);
-			.attr("r", function(d) { return sizeScale(d[sizeField]); });
+			.attr("r", function(d) { return sizeScale(d[sizeField]); })
+				.attr("class", function(d) { return "inst_" + d.ID; })
 
 		map.on("viewreset, zoom", update);
 		update();
