@@ -18,6 +18,7 @@ class LeafletD3PointMap {
 			data: null,
 			width: 960,
 			sizeField: "COUNT_AUTHOR",
+			sizeScale: [1,20],
 			initMapCenter: [37.8, -26.9],
 			initMapZoom: 1.5,
 			// color: d3.scaleOrdinal(d3.schemeCategory10),
@@ -32,6 +33,9 @@ class LeafletD3PointMap {
 		}
 		this.el.style("width", this.width + "px")
 				.style("height", this.height + "px");
+		if ((this.sizeScale instanceof Array) && (this.sizeScale.length === 2)) {
+			this.sizeScale = d3.scaleLinear().range(this.sizeScale);
+		}
 		this.init = false;
 		console.log(this._data);
 		if (this.el !== null && this._data !== null) {
@@ -74,6 +78,19 @@ class LeafletD3PointMap {
 			// this.updateData();
 			// NOT IMPLEMENTED
 			console.log("UPDATING DATA NOT YET IMPLEMENTED");
+
+			var g = this.el.select("svg g");
+			var circle = g.selectAll("circle")
+				.data(this._data, function(d) { return d.ID; });
+			var dur = 500;
+			circle.exit()
+				.transition()
+				.duration(dur)
+				.attr("r", 0)
+				.remove();
+
+			g.enter().append("circle");
+			g.each(function(d) { console.log(d); });
 		}
 		// console.log(typeof updateData);
 		// if (typeof updateData === 'function') updateData();
@@ -86,6 +103,7 @@ class LeafletD3PointMap {
 		var height = this.height;
 		var data = this._data;
 		var sizeField = this.sizeField;
+		var sizeScale = this.sizeScale;
 		var initMapCenter = this.initMapCenter;
 		var initMapZoom = this.initMapZoom;
 		// var graph = this._data;
@@ -106,11 +124,10 @@ class LeafletD3PointMap {
 			for (var i = 0; i < data.length ; i++) {
 				data[i].LatLng = new L.LatLng(data[i].lat, data[i].lng)
 			}
-			var sizeScale = d3.scaleLinear().range([5,20])
-								.domain(d3.extent(data, function(d) { return d[sizeField]; }));
+			sizeScale.domain(d3.extent(data, function(d) { return d[sizeField]; }));
 
 			var feature = g.selectAll("circle")
-			.data(data)
+			.data(data, function(d) { return d.ID; })
 			.enter().append("circle")
 			.style("stroke", "black")
 			.style("opacity", .6)
